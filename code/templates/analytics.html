@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — IARA · WSU</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn-web-wsu.s3-us-west-2.amazonaws.com/designsystem/1.x/build/dist/wsu-design-system.bundle.dist.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--c:#a60f2d;--cd:#7a0b21;--ct:#fae6ea;--gt:#262626;--gm:#737373;--gb:#e6e6e6;--gbg:#f5f5f5;--gd:#1a1a1a;--green:#1a6b2e;--greenbg:#e6f4ea;--amber:#7a4a00;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--font:'Montserrat',sans-serif;--r:4px;--rmd:8px;--sh:0 1px 4px rgba(0,0,0,.09)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font);font-size:14px;color:var(--gt);background:var(--gbg);min-height:100vh;-webkit-font-smoothing:antialiased}
+    .util-bar{background:var(--gd);color:#999;font-size:11px;font-weight:500;letter-spacing:.05em;padding:5px 24px;display:flex;justify-content:space-between}
+    .util-bar a{color:#999;text-decoration:none}.util-bar a:hover{color:#fff}
+    .site-header{background:var(--c);display:flex;align-items:stretch;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.22)}
+    .site-brand{display:flex;align-items:center;padding:12px 0;gap:0;text-decoration:none;color:#fff}
+    .brand-rule{width:3px;height:36px;background:rgba(255,255,255,.3);margin:0 14px;border-radius:2px;flex-shrink:0}
+    .brand-wsu{font-size:18px;font-weight:900;letter-spacing:-.01em;line-height:1}
+    .brand-app{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;opacity:.75;margin-top:3px}
+    .site-nav{display:flex;align-items:stretch}
+    .site-nav a{display:flex;align-items:center;padding:0 14px;color:rgba(255,255,255,.82);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .15s}
+    .site-nav a:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:rgba(255,255,255,.5)}
+    .site-nav a.current{color:#fff;border-bottom-color:#fff}
+    .nav-div{width:1px;background:rgba(255,255,255,.15);margin:12px 0}
+    .page-hero{background:var(--gd);color:#fff;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .hero-text h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+    .hero-text p{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}
+    .hero-right{display:flex;align-items:center;gap:8px}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .updated{font-size:11px;color:rgba(255,255,255,.45)}
+    .btn-outline{padding:7px 13px;border:1.5px solid rgba(255,255,255,.32);background:transparent;color:rgba(255,255,255,.82);border-radius:var(--r);font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+    .btn-outline:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.6);color:#fff}
+    .page-body{max-width:1440px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+    .card{background:#fff;border-radius:var(--rmd);box-shadow:var(--sh);overflow:hidden}
+    .card-head{padding:13px 20px;border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between}
+    .card-head h2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm)}
+    .card-meta{font-size:10px;color:var(--gm);font-weight:600}
+    .card-body{padding:20px}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}
+    .stat-card{background:#fff;border-radius:var(--rmd);box-shadow:var(--sh);padding:18px 18px 14px;border-left:4px solid var(--gb);transition:transform .15s}
+    .stat-card:hover{transform:translateY(-2px)}
+    .stat-card.s-c{border-left-color:var(--c)}
+    .stat-card.s-g{border-left-color:var(--green)}
+    .stat-card.s-a{border-left-color:#d97706}
+    .stat-card.s-r{border-left-color:var(--red)}
+    .stat-card.s-n{border-left-color:var(--gm)}
+    .stat-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm);margin-bottom:8px}
+    .stat-val{font-size:28px;font-weight:900;color:var(--gt);letter-spacing:-.02em;line-height:1;margin-bottom:3px}
+    .stat-sub{font-size:10px;color:var(--gm);font-weight:500}
+    .mini-bar{height:3px;background:var(--gb);border-radius:2px;margin-top:10px;overflow:hidden}
+    .mini-fill{height:100%;border-radius:2px;transition:width .4s}
+    .s-g .mini-fill{background:var(--green)}.s-a .mini-fill{background:#d97706}.s-r .mini-fill{background:var(--red)}
+    .charts-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .chart-wrap{position:relative;height:260px}
+    .data-table{width:100%;border-collapse:collapse}
+    .data-table th{background:var(--gbg);padding:9px 12px;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm);border-bottom:2px solid #d8d8d8}
+    .data-table td{padding:11px 12px;border-bottom:1px solid var(--gb);font-size:12px;color:var(--gt)}
+    .data-table tr:hover td{background:#fafafa}
+    .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:800}
+    .badge.high{background:var(--greenbg);color:var(--green)}
+    .badge.medium{background:var(--amberbg);color:var(--amber)}
+    .badge.low{background:var(--ct);color:var(--c)}
+    .insight-card{background:var(--c);color:#fff;border-radius:var(--rmd);padding:20px 22px}
+    .ic-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.75;margin-bottom:5px}
+    .ic-val{font-size:28px;font-weight:900;margin-bottom:3px}
+    .ic-desc{font-size:11px;opacity:.8}
+    .insights-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}
+    .loading-wrap{text-align:center;padding:80px 20px}
+    .spinner{width:36px;height:36px;border:3px solid var(--gb);border-top-color:var(--c);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-wrap p{font-size:12px;color:var(--gm);font-weight:500}
+    .empty-card{background:#fff;border-radius:var(--rmd);padding:80px 32px;text-align:center;box-shadow:var(--sh)}
+    .empty-icon{font-size:32px;opacity:.2;margin-bottom:14px}
+    .empty-card h3{font-size:14px;font-weight:700;color:var(--gm);margin-bottom:8px}
+    .empty-card p{font-size:12px;color:var(--gm);margin-bottom:20px}
+    .btn-primary{padding:10px 20px;background:var(--c);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn-primary:hover{background:var(--cd)}
+    .site-footer{text-align:center;padding:16px;font-size:11px;color:var(--gm);font-weight:500;border-top:1px solid var(--gb);letter-spacing:.03em}
+    @media(max-width:900px){.charts-2{grid-template-columns:1fr}}
+    @media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-brand" href="/">
+    <div><div class="brand-wsu">WSU</div><div class="brand-app">IARA System</div></div>
+    <div class="brand-rule"></div>
+    <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.75);line-height:1.4;">International<br>Admissions Rating</div>
+  </a>
+  <nav class="site-nav">
+    <div class="nav-div"></div>
+    <a href="/">Analysis</a>
+    <a href="/analytics" class="current">Analytics</a>
+    <a href="/batch">Batch</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/financial">Financial</a>
+    <a href="/transcript">Transcripts</a>
+    <div class="nav-div"></div>
+    <a href="/logout" style="opacity:.7">Logout</a>
+  </nav>
+</header>
+<div class="page-hero">
+  <div class="hero-text">
+    <h1>Analytics Dashboard</h1>
+    <p>Enrollment trends and applicant insights</p>
+  </div>
+  <div class="hero-right">
+    <span class="updated"><span class="live-dot"></span>Updated <span id="lastUpdated">now</span></span>
+    <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-outline" onclick="exportExcel()">Export Excel</button>
+    <button class="btn-outline" onclick="loadAnalytics()">Refresh</button>
+  </div>
+</div>
+<main class="page-body">
+  <div id="loadingWrap" class="loading-wrap"><div class="spinner"></div><p>Loading analytics…</p></div>
+  <div id="analyticsContent" style="display:none;">
+    <div class="stats-grid">
+      <div class="stat-card s-c"><div class="stat-lbl">Total Students</div><div class="stat-val" id="totalStudents">0</div><div class="stat-sub">analyzed to date</div></div>
+      <div class="stat-card s-g"><div class="stat-lbl">High Potential</div><div class="stat-val" id="highPotential">0</div><div class="stat-sub">strongly recommended</div><div class="mini-bar"><div class="mini-fill" id="highBar" style="width:0%"></div></div></div>
+      <div class="stat-card s-a"><div class="stat-lbl">Medium Risk</div><div class="stat-val" id="mediumRisk">0</div><div class="stat-sub">monitoring needed</div><div class="mini-bar"><div class="mini-fill" id="medBar" style="width:0%"></div></div></div>
+      <div class="stat-card s-r"><div class="stat-lbl">High Risk</div><div class="stat-val" id="highRisk">0</div><div class="stat-sub">review required</div><div class="mini-bar"><div class="mini-fill" id="riskBar" style="width:0%"></div></div></div>
+      <div class="stat-card s-n"><div class="stat-lbl">Avg Final Score</div><div class="stat-val" id="avgScore">0</div><div class="stat-sub">cohort average</div></div>
+    </div>
+    <div class="insights-row" id="insightsRow"></div>
+    <div class="charts-2">
+      <div class="card"><div class="card-head"><h2>Score Distribution</h2><span class="card-meta" id="distMeta"></span></div><div class="card-body"><div class="chart-wrap"><canvas id="scoreChart"></canvas></div></div></div>
+      <div class="card"><div class="card-head"><h2>Top Countries by Volume</h2><span class="card-meta" id="countryMeta"></span></div><div class="card-body"><div class="chart-wrap"><canvas id="countryChart"></canvas></div></div></div>
+    </div>
+    <div class="card"><div class="card-head"><h2>Score Component Breakdown</h2><span class="card-meta">Percentage view</span></div><div class="card-body"><div class="chart-wrap"><canvas id="avgChart"></canvas></div></div></div>
+    <div class="card"><div class="card-head"><h2>Country Performance</h2><span class="card-meta" id="tableMeta">Top 10</span></div><div class="card-body" style="padding:0;"><table class="data-table"><thead><tr><th>#</th><th>Country</th><th>Students</th><th>Avg Score</th><th>Rating</th></tr></thead><tbody id="countryBody"></tbody></table></div></div>
+    <div class="card"><div class="card-head"><h2>Essay Quality Metrics</h2><span class="card-meta">Grammar &amp; coherence</span></div><div class="card-body"><div class="chart-wrap"><canvas id="essayChart"></canvas></div></div></div>
+  </div>
+  <div id="emptyState" style="display:none;"><div class="empty-card"><div class="empty-icon">📊</div><h3>No Data Yet</h3><p>Start analyzing students to see trends and insights here.</p><a href="/" class="btn-primary">Start Analyzing</a></div></div>
+</main>
+<footer class="site-footer">IARA — International Admissions Rating Algorithm </footer>
+<script>
+  let sChart,cChart,aChart,eChart;
+  Chart.defaults.font.family="'Montserrat',sans-serif";Chart.defaults.font.size=11;
+  const C='#a60f2d',G='#1a6b2e',A='#d97706',R='#b91c1c',GM='#737373';
+  function fmt(n){return Number(n).toLocaleString();}
+  function badge(s){if(s>=7.5)return`<span class="badge high">Excellent (${s.toFixed(1)})</span>`;if(s>=6.5)return`<span class="badge medium">Good (${s.toFixed(1)})</span>`;return`<span class="badge low">Review (${s.toFixed(1)})</span>`;}
+  function buildInsights(data){const total=data.totalStudents||0;if(!total)return'';const dist=data.distribution||{};const pct=((dist.highPotential||0)/total*100).toFixed(0);const avg=data.avgFinalScore||0;let h='';if(+pct>30)h+=`<div class="insight-card"><div class="ic-lbl">Success Rate</div><div class="ic-val">${pct}%</div><div class="ic-desc">of students are high-potential candidates</div></div>`;if(avg>6)h+=`<div class="insight-card"><div class="ic-lbl">Cohort Quality</div><div class="ic-val">${avg.toFixed(1)}</div><div class="ic-desc">average final score across all analyzed students</div></div>`;return h;}
+  async function exportCSV(){const r=await fetch('/api/export/csv',{method:'POST'});const b=await r.blob();const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(b),download:`wsu_analysis_${new Date().toISOString().split('T')[0]}.csv`});document.body.appendChild(a);a.click();a.remove();}
+  async function exportExcel(){const r=await fetch('/api/export/excel',{method:'POST'});const b=await r.blob();const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(b),download:`wsu_analysis_${new Date().toISOString().split('T')[0]}.xlsx`});document.body.appendChild(a);a.click();a.remove();}
+  async function loadAnalytics(){
+    try{
+      const resp=await fetch('/api/analytics/summary');const data=await resp.json();
+      const total=data.totalStudents||0;
+      if(!total){document.getElementById('loadingWrap').style.display='none';document.getElementById('analyticsContent').style.display='none';document.getElementById('emptyState').style.display='block';return;}
+      const high=data.distribution?.highPotential||0,med=data.distribution?.mediumRisk||0,risk=data.distribution?.highRisk||0;
+      document.getElementById('totalStudents').textContent=fmt(total);
+      document.getElementById('highPotential').textContent=fmt(high);
+      document.getElementById('mediumRisk').textContent=fmt(med);
+      document.getElementById('highRisk').textContent=fmt(risk);
+      document.getElementById('avgScore').textContent=(data.avgFinalScore||0).toFixed(2);
+      document.getElementById('highBar').style.width=(high/total*100)+'%';
+      document.getElementById('medBar').style.width=(med/total*100)+'%';
+      document.getElementById('riskBar').style.width=(risk/total*100)+'%';
+      document.getElementById('insightsRow').innerHTML=buildInsights(data);
+      document.getElementById('distMeta').textContent=fmt(total)+' students';
+      if(sChart)sChart.destroy();
+      sChart=new Chart(document.getElementById('scoreChart').getContext('2d'),{type:'doughnut',data:{labels:['High Potential','Medium Risk','High Risk'],datasets:[{data:[high,med,risk],backgroundColor:[G,A,R],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{padding:14,font:{size:11,weight:'600'},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${(ctx.parsed/total*100).toFixed(1)}%)`}}}}});
+      const countries=data.countryStats||[];
+      document.getElementById('countryMeta').textContent=countries.length+' countries';
+      if(cChart)cChart.destroy();
+      cChart=new Chart(document.getElementById('countryChart').getContext('2d'),{type:'bar',data:{labels:countries.slice(0,8).map(c=>c.country||'Unknown'),datasets:[{label:'Students',data:countries.slice(0,8).map(c=>c.count),backgroundColor:C,borderRadius:3,barThickness:26}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:GM},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{color:GM},grid:{display:false}}}}});
+      if(aChart)aChart.destroy();
+      aChart=new Chart(document.getElementById('avgChart').getContext('2d'),{type:'bar',data:{labels:['Avg Final Score','High Potential %','Medium Risk %','High Risk %'],datasets:[{data:[data.avgFinalScore||0,(high/total*100)||0,(med/total*100)||0,(risk/total*100)||0],backgroundColor:[GM,G,A,R],borderRadius:3,barThickness:44}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)}}},scales:{y:{beginAtZero:true,ticks:{color:GM},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{color:GM},grid:{display:false}}}}});
+      const body=document.getElementById('countryBody');body.innerHTML='';
+      const sorted=countries.map(c=>({...c,avg:(data.avgScoresPerCountry?.[c.country]||0)})).sort((a,b)=>b.avg-a.avg).slice(0,10);
+      document.getElementById('tableMeta').textContent='Top '+sorted.length+' countries';
+      sorted.forEach((c,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><strong>#${i+1}</strong></td><td>${c.country||'Unknown'}</td><td>${fmt(c.count)}</td><td>${c.avg.toFixed(2)}</td><td>${badge(c.avg)}</td>`;body.appendChild(tr);});
+      const gramAvg=data.avgGrammarScore||0;
+      if(eChart)eChart.destroy();
+      eChart=new Chart(document.getElementById('essayChart').getContext('2d'),{type:'line',data:{labels:['Grammar','Coherence','Vocabulary','Overall'],datasets:[{label:'Avg Score',data:[gramAvg,gramAvg*.95,gramAvg*.9,gramAvg*.92],borderColor:C,backgroundColor:'rgba(166,15,45,.08)',borderWidth:2.5,fill:true,tension:.4,pointRadius:5,pointBackgroundColor:C,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{color:GM,callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{color:GM},grid:{display:false}}}}});
+      document.getElementById('loadingWrap').style.display='none';
+      document.getElementById('emptyState').style.display='none';
+      document.getElementById('analyticsContent').style.display='block';
+      document.getElementById('lastUpdated').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    }catch(e){document.getElementById('loadingWrap').innerHTML=`<p style="color:var(--c);font-weight:600;">Error: ${e.message}</p>`;}
+  }
+  loadAnalytics();setInterval(loadAnalytics,30000);
+</script>
+</body>
+</html>

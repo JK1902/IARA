@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Processing — IARA · WSU</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://cdn-web-wsu.s3-us-west-2.amazonaws.com/designsystem/1.x/build/dist/wsu-design-system.bundle.dist.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--c:#a60f2d;--cd:#7a0b21;--ct:#fae6ea;--gt:#262626;--gm:#737373;--gb:#e6e6e6;--gbg:#f5f5f5;--gd:#1a1a1a;--green:#1a6b2e;--greenbg:#e6f4ea;--font:'Montserrat',sans-serif;--r:4px;--rmd:8px;--sh:0 1px 4px rgba(0,0,0,.09)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font);font-size:14px;color:var(--gt);background:var(--gbg);min-height:100vh;-webkit-font-smoothing:antialiased}
+    .util-bar{background:var(--gd);color:#999;font-size:11px;font-weight:500;letter-spacing:.05em;padding:5px 24px;display:flex;justify-content:space-between}
+    .site-header{background:var(--c);display:flex;align-items:stretch;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.22)}
+    .site-brand{display:flex;align-items:center;padding:12px 0;gap:0;text-decoration:none;color:#fff}
+    .brand-rule{width:3px;height:36px;background:rgba(255,255,255,.3);margin:0 14px;border-radius:2px;flex-shrink:0}
+    .brand-wsu{font-size:18px;font-weight:900;letter-spacing:-.01em;line-height:1}
+    .brand-app{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;opacity:.75;margin-top:3px}
+    .site-nav{display:flex;align-items:stretch}
+    .site-nav a{display:flex;align-items:center;padding:0 14px;color:rgba(255,255,255,.82);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .15s}
+    .site-nav a:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:rgba(255,255,255,.5)}
+    .site-nav a.current{color:#fff;border-bottom-color:#fff}
+    .nav-div{width:1px;background:rgba(255,255,255,.15);margin:12px 0}
+    .page-hero{background:var(--gd);color:#fff;padding:20px 24px}
+    .page-hero h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+    .page-hero p{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}
+    .page-body{max-width:1100px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+    .card{background:#fff;border-radius:var(--rmd);box-shadow:var(--sh);overflow:hidden}
+    .card-head{padding:13px 20px;border-bottom:1px solid var(--gb)}
+    .card-head h2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm)}
+    .card-body{padding:20px}
+    .upload-zone{border:2px dashed var(--gb);border-radius:var(--rmd);padding:52px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+    .upload-zone:hover,.upload-zone.over{border-color:var(--c);background:var(--ct)}
+    .upload-zone .uz-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+    .upload-zone h3{font-size:13px;font-weight:700;color:var(--gt);margin-bottom:4px}
+    .upload-zone p{font-size:12px;color:var(--gm)}
+    .file-info{display:none;background:var(--greenbg);border:1.5px solid #9ecfab;border-radius:var(--r);padding:10px 14px;margin-top:12px;font-size:12px;color:var(--green);font-weight:700}
+    .tmpl-box{background:var(--gbg);border-radius:var(--r);padding:14px 16px;margin-top:16px;border:1px solid var(--gb)}
+    .tmpl-box h3{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gm);margin-bottom:7px}
+    .tmpl-box p{font-size:11px;color:var(--gm);margin-bottom:5px}
+    .tmpl-box code{background:#fff;padding:2px 6px;border-radius:3px;font-family:'Courier New',monospace;font-size:11px;color:var(--c);border:1px solid var(--gb)}
+    .action-row{display:flex;align-items:center;gap:10px;margin-top:18px}
+    .btn-primary{padding:11px 22px;background:var(--c);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+    .btn-primary:hover{background:var(--cd)}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+    .btn-secondary{padding:11px 18px;background:#fff;color:var(--gt);border:1.5px solid var(--gb);border-radius:var(--r);font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
+    .btn-secondary:hover{background:var(--gbg)}
+    .prog-wrap{margin:14px 0 6px}
+    .prog-track{height:6px;background:var(--gb);border-radius:3px;overflow:hidden}
+    .prog-fill{height:100%;background:var(--c);border-radius:3px;transition:width .3s}
+    .prog-lbl{font-size:10px;color:var(--gm);font-weight:600;margin-top:5px;text-align:center}
+    .res-table{width:100%;border-collapse:collapse;margin-top:14px}
+    .res-table th{background:var(--gbg);padding:9px 12px;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm);border-bottom:2px solid #d8d8d8}
+    .res-table td{padding:10px 12px;border-bottom:1px solid var(--gb);font-size:12px}
+    .res-table tr:hover td{background:#fafafa}
+    .ok{color:var(--green);font-weight:700}
+    .err{color:var(--c);font-weight:700}
+    .rec-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:var(--gbg);color:var(--gm)}
+    .spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .site-footer{text-align:center;padding:16px;font-size:11px;color:var(--gm);font-weight:500;border-top:1px solid var(--gb);letter-spacing:.03em}
+  </style>
+</head>
+<body>
+<div class="util-bar"><span>Washington State University · Pullman WA 99164</span></div>
+<header class="site-header">
+  <a class="site-brand" href="/">
+    <div><div class="brand-wsu">WSU</div><div class="brand-app">IARA System</div></div>
+    <div class="brand-rule"></div>
+    <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.75);line-height:1.4;">International<br>Admissions Rating</div>
+  </a>
+  <nav class="site-nav">
+    <div class="nav-div"></div>
+    <a href="/">Analysis</a><a href="/analytics">Analytics</a><a href="/batch" class="current">Batch</a>
+    <a href="/dashboard">Dashboard</a><a href="/financial">Financial</a><a href="/transcript">Transcripts</a>
+    <div class="nav-div"></div><a href="/logout" style="opacity:.7">Logout</a>
+  </nav>
+</header>
+<div class="page-hero"><h1>Batch Processing</h1><p>Analyze multiple students at once using a CSV upload</p></div>
+<main class="page-body">
+  <div class="card">
+    <div class="card-head"><h2>Upload Student Data</h2></div>
+    <div class="card-body">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="uz-icon">📄</div>
+        <h3>Click to upload or drag &amp; drop</h3>
+        <p>CSV file with student data · Max 10 MB</p>
+      </div>
+      <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="handleFile(event)">
+      <div class="file-info" id="fileInfo"></div>
+      <div class="action-row">
+        <button class="btn-primary" id="processBtn" onclick="processBatch()" disabled>Process Batch</button>
+        <button class="btn-secondary" onclick="dlTemplate()">Download Template</button>
+      </div>
+      <div class="tmpl-box">
+        <h3>CSV Column Format</h3>
+        <p>Your file must include:</p>
+        <p><code>studentId, country, gpa, curriculum, travelHistory, essayText, negFactors</code></p>
+        <p style="margin-top:5px;font-size:10px;color:var(--gm);">negFactors: comma-separated within cell, e.g. <code>reqAppFeeWaiver,bankDocsPending</code></p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="resultsCard" style="display:none;">
+    <div class="card-head"><h2>Processing Results</h2></div>
+    <div class="card-body">
+      <div class="prog-wrap">
+        <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        <div class="prog-lbl" id="progLbl">Starting…</div>
+      </div>
+      <div id="resWrap" style="display:none;">
+        <table class="res-table">
+          <thead><tr><th>Student ID</th><th>Status</th><th>Final Score</th><th>Recommendation</th></tr></thead>
+          <tbody id="resBody"></tbody>
+        </table>
+        <div class="action-row" style="margin-top:16px;">
+          <button class="btn-primary" onclick="exportRes()">Export Results</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">IARA — International Admissions Rating Algorithm </footer>
+<script>
+  let parsed=[],results=[];
+  const zone=document.getElementById('uploadZone');
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');const f=e.dataTransfer.files[0];if(f?.name.endsWith('.csv'))parseCSV(f);else alert('Please upload a CSV file.');});
+  function handleFile(e){if(e.target.files[0])parseCSV(e.target.files[0]);}
+  function parseCSV(file){Papa.parse(file,{header:true,skipEmptyLines:true,complete(r){parsed=r.data;const info=document.getElementById('fileInfo');info.style.display='block';info.textContent=`✓  ${file.name}  —  ${parsed.length} student rows ready`;document.getElementById('processBtn').disabled=false;},error(e){alert('CSV error: '+e.message);}});}
+  async function processBatch(){
+    if(!parsed.length)return;
+    const btn=document.getElementById('processBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Processing…';
+    document.getElementById('resultsCard').style.display='block';document.getElementById('resWrap').style.display='none';results=[];
+    const students=parsed.map(r=>({studentId:r.studentId||'',country:r.country||'',gpa:parseFloat(r.gpa)||0,curriculum:r.curriculum||'',travelHistory:r.travelHistory||'',essayText:r.essayText||'',negFactors:r.negFactors?r.negFactors.split(',').map(f=>f.trim()):[] }));
+    try{
+      const SIZE=10;
+      for(let i=0;i<students.length;i+=SIZE){
+        const batch=students.slice(i,i+SIZE);
+        const resp=await fetch('/api/batch-analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({students:batch})});
+        const data=await resp.json();results=results.concat(data.results);
+        const pct=Math.min(100,Math.round((i+batch.length)/students.length*100));
+        document.getElementById('progFill').style.width=pct+'%';
+        document.getElementById('progLbl').textContent=`Processed ${Math.min(i+SIZE,students.length)} of ${students.length} students`;
+      }
+      renderRes();
+    }catch(e){alert('Failed: '+e.message);}
+    finally{btn.disabled=false;btn.innerHTML='Process Batch';}
+  }
+  function renderRes(){const body=document.getElementById('resBody');body.innerHTML='';results.forEach(r=>{const tr=body.insertRow();tr.innerHTML=`<td><strong>${r.studentId}</strong></td><td class="${r.success?'ok':'err'}">${r.success?'✓ Success':'✗ Failed'}</td><td>${r.success?r.finalScore.toFixed(2):'—'}</td><td><span class="rec-pill">${r.success?r.recommendation:r.error}</span></td>`;});document.getElementById('resWrap').style.display='block';}
+  function dlTemplate(){const csv=`studentId,country,gpa,curriculum,travelHistory,essayText,negFactors\nSTU_001,South Korea,3.9,IGCSE/IB,SEVIS/Multiple US trips,"Passionate about AI research.",\nSTU_002,India,3.2,Standard Intl Secondary,1 listed or multiple non-listed,"Want to study at WSU.",bankDocsPending`;const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:'student_template.csv'});document.body.appendChild(a);a.click();a.remove();}
+  function exportRes(){let csv='studentId,status,finalScore,recommendation\n';results.forEach(r=>{csv+=`${r.studentId},${r.success?'Success':'Failed'},${r.success?r.finalScore.toFixed(2):'N/A'},"${(r.success?r.recommendation:r.error).replace(/"/g,'""')}"\n`;});const a=Object.assign(document.createElement('a'),{href:encodeURI('data:text/csv;charset=utf-8,'+csv),download:'batch_results.csv'});document.body.appendChild(a);a.click();a.remove();}
+</script>
+</body>
+</html>

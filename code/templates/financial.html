@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Document Screening — IARA · WSU</title>
+  <link rel="stylesheet" href="https://cdn-web-wsu.s3-us-west-2.amazonaws.com/designsystem/1.x/build/dist/wsu-design-system.bundle.dist.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--c:#a60f2d;--cd:#7a0b21;--ct:#fae6ea;--gt:#262626;--gm:#737373;--gb:#e6e6e6;--gbg:#f5f5f5;--gd:#1a1a1a;--green:#1a6b2e;--greenbg:#e6f4ea;--amber:#7a4a00;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--font:'Montserrat',sans-serif;--r:4px;--rmd:8px;--sh:0 1px 4px rgba(0,0,0,.09)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font);font-size:14px;color:var(--gt);background:var(--gbg);min-height:100vh;-webkit-font-smoothing:antialiased}
+    .util-bar{background:var(--gd);color:#999;font-size:11px;font-weight:500;letter-spacing:.05em;padding:5px 24px;display:flex;justify-content:space-between}
+    .site-header{background:var(--c);display:flex;align-items:stretch;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.22)}
+    .site-brand{display:flex;align-items:center;padding:12px 0;gap:0;text-decoration:none;color:#fff}
+    .brand-rule{width:3px;height:36px;background:rgba(255,255,255,.3);margin:0 14px;border-radius:2px;flex-shrink:0}
+    .brand-wsu{font-size:18px;font-weight:900;letter-spacing:-.01em;line-height:1}
+    .brand-app{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;opacity:.75;margin-top:3px}
+    .site-nav{display:flex;align-items:stretch}
+    .site-nav a{display:flex;align-items:center;padding:0 14px;color:rgba(255,255,255,.82);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .15s}
+    .site-nav a:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:rgba(255,255,255,.5)}
+    .site-nav a.current{color:#fff;border-bottom-color:#fff}
+    .nav-div{width:1px;background:rgba(255,255,255,.15);margin:12px 0}
+    .page-hero{background:var(--gd);color:#fff;padding:20px 24px}
+    .page-hero h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+    .page-hero p{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}
+    .page-body{max-width:1400px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+    .card{background:#fff;border-radius:var(--rmd);box-shadow:var(--sh);overflow:hidden}
+    .card-head{padding:13px 20px;border-bottom:1px solid var(--gb)}
+    .card-head h2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gm)}
+    .card-body{padding:20px}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gm);margin-bottom:5px}
+    .upload-zone{border:2px dashed var(--gb);border-radius:var(--rmd);padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+    .upload-zone:hover{border-color:var(--c);background:var(--ct)}
+    .upload-zone.over{border-color:var(--c);background:var(--ct)}
+    .uz-icon{font-size:32px;opacity:.3;margin-bottom:10px}
+    .upload-zone h3{font-size:13px;font-weight:700;color:var(--gt);margin-bottom:4px}
+    .upload-zone p{font-size:11px;color:var(--gm)}
+    .btn-primary{width:100%;padding:12px;background:var(--c);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:background .15s;margin-top:12px}
+    .btn-primary:hover{background:var(--cd)}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+    .info-box{background:var(--gbg);border:1px solid var(--gb);border-radius:var(--r);padding:13px 16px;margin-top:14px;font-size:12px;color:var(--gm)}
+    .info-box strong{color:var(--gt);display:block;margin-bottom:6px}
+    .info-box ul{margin-left:16px;list-style:disc;display:flex;flex-direction:column;gap:3px}
+    .info-box li{font-size:11px}
+    .error-box{background:var(--redbg);border:1.5px solid #f0a0a8;border-radius:var(--r);padding:10px 13px;margin-top:10px;font-size:12px;color:var(--red);font-weight:600;display:none}
+    /* Results */
+    .sev-pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;margin-bottom:6px}
+    .sev-low{background:var(--greenbg);color:var(--green)}
+    .sev-medium{background:var(--amberbg);color:var(--amber)}
+    .sev-high{background:var(--redbg);color:var(--red)}
+    .sev-err{background:var(--ct);color:var(--c)}
+    .doc-block{background:var(--gbg);border:1px solid var(--gb);border-radius:var(--rmd);padding:16px;margin-bottom:16px}
+    .doc-name{font-size:14px;font-weight:800;color:var(--gt);margin:6px 0 4px}
+    .doc-sub{font-size:11px;color:var(--gm)}
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+    .meta-grid input{width:100%;padding:8px 10px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:var(--font);font-size:12px;color:var(--gt)}
+    .meta-grid input:focus{outline:none;border-color:var(--c)}
+    .meta-notes textarea{width:100%;padding:9px 11px;border:1.5px solid var(--gb);border-radius:var(--r);font-family:var(--font);font-size:12px;resize:vertical;min-height:80px;line-height:1.6;margin-top:8px}
+    .meta-notes textarea:focus{outline:none;border-color:var(--c)}
+    .page-card{border:1px solid var(--gb);border-radius:var(--r);padding:14px;margin-top:10px;background:#fff}
+    .page-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+    .page-row h4{font-size:13px;font-weight:700;color:var(--gt)}
+    .pill{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:4px}
+    .pill-conf{background:#eef2ff;color:#4338ca}
+    .pill-ela,.pill-cm{background:var(--gbg);color:var(--gm);border:1px solid var(--gb)}
+    .pill-esc{background:#e0f2fe;color:#0369a1}
+    .summary-blk{font-size:12px;color:var(--gt);margin:8px 0 10px;line-height:1.6}
+    .ocr-prev{font-size:11px;color:var(--gm);background:var(--gbg);border-radius:var(--r);padding:8px;margin-bottom:10px;max-height:90px;overflow-y:auto;border:1px solid var(--gb)}
+    .signals-head{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gm);padding-top:10px;border-top:1px solid var(--gb);margin-top:4px;margin-bottom:6px}
+    .signal-item{background:var(--gbg);border-radius:var(--r);padding:8px 10px;margin-bottom:6px;font-size:12px;border:1px solid var(--gb)}
+    .signal-meta{font-size:10px;margin-top:4px;color:var(--gm)}
+    .pol-fraud{color:var(--red);font-weight:700}
+    .pol-benign{color:var(--green);font-weight:700}
+    .pol-inc{color:var(--amber);font-weight:700}
+    .export-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .btn-secondary{padding:9px 16px;background:var(--gd);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;transition:opacity .15s}
+    .btn-secondary:hover{opacity:.85}
+    .btn-secondary:disabled{opacity:.4;cursor:not-allowed}
+    .export-status{font-size:11px;color:var(--gm);align-self:center}
+    .spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:5px}
+    .progress-wrap{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      background:#fff;
+      border:1px solid var(--gb);
+      border-radius:var(--rmd);
+    }
+
+    .progress-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:8px;
+    }
+
+    .progress-status{
+      font-size:11px;
+      font-weight:700;
+      color:var(--gt);
+      letter-spacing:.03em;
+    }
+
+    .progress-percent{
+      font-size:11px;
+      font-weight:800;
+      color:var(--c);
+    }
+
+    .progress-bar{
+      width:100%;
+      height:10px;
+      background:var(--gb);
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .progress-fill{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,var(--c),#c1274a);
+      border-radius:999px;
+      transition:width .35s ease;
+    }
+
+    .progress-subtext{
+      margin-top:7px;
+      font-size:10px;
+      color:var(--gm);
+    }
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .section-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gm);margin:12px 0 6px}
+    .site-footer{text-align:center;padding:16px;font-size:11px;color:var(--gm);font-weight:500;border-top:1px solid var(--gb);letter-spacing:.03em}
+    @media(max-width:900px){.meta-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-brand" href="/">
+    <div><div class="brand-wsu">WSU</div><div class="brand-app">IARA System</div></div>
+    <div class="brand-rule"></div>
+    <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.75);line-height:1.4;">International<br>Admissions Rating</div>
+  </a>
+  <nav class="site-nav">
+    <div class="nav-div"></div>
+    <a href="/">Analysis</a><a href="/analytics">Analytics</a><a href="/batch">Batch</a>
+    <a href="/financial" class="current">Financial</a><a href="/transcript">Transcripts</a>
+    <div class="nav-div"></div><a href="/logout" style="opacity:.7">{{ username }} · Logout</a>
+  </nav>
+</header>
+<div class="page-hero"><h1>Financial Document Screening</h1><p>Pre-screening for bank statements &amp; financial support letters — prototype tool</p></div>
+<main class="page-body">
+  <!-- Upload -->
+  <div class="card">
+    <div class="card-head"><h2>Upload Financial PDF(s)</h2></div>
+    <div class="card-body">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('pdfFile').click()">
+        <div class="uz-icon">💵</div>
+        <h3>Click to select or drag &amp; drop PDF(s)</h3>
+        <p>Bank statements or financial support letters · Max 20 pages per document</p>
+      </div>
+      <input type="file" id="pdfFile" accept=".pdf" multiple style="display:none" onchange="fileSelected(this)">
+      <button class="btn-primary" id="analyzeBtn" onclick="uploadAndAnalyze()">Analyze Document(s)</button>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-top">
+          <div class="progress-status" id="progressStatus">Preparing analysis...</div>
+          <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="progress-subtext" id="progressSubtext">
+          Waiting to start...
+        </div>
+      </div>
+      <div class="error-box" id="errorBox"></div>
+      <div class="info-box">
+        <strong>What this does</strong>
+        <ul>
+          <li>Runs OCR to extract document text</li>
+          <li>Computes pixel heuristics (ELA, copy-move)</li>
+          <li>Uses AI vision to flag unusual regions and content conflicts</li>
+          <li>Returns a conservative LOW / MEDIUM / HIGH risk label</li>
+        </ul>
+        <p style="margin-top:8px;font-size:11px;font-style:italic;">Pre-screening only. Humans must review MEDIUM and HIGH results.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Results -->
+  <div class="card" id="resultsCard" style="display:none;">
+    <div class="card-head"><h2>Document Results</h2></div>
+    <div class="card-body">
+      <div class="info-box">
+        <strong>Legend</strong>
+        <ul>
+          <li><strong>DOC:</strong> Overall risk level (LOW / MEDIUM / HIGH)</li>
+          <li><strong>Conf:</strong> Model confidence 0–1</li>
+          <li><strong>ELA:</strong> Image consistency; high values may indicate editing</li>
+          <li><strong>Copy-move:</strong> Detects duplicated regions</li>
+        </ul>
+      </div>
+      <div class="section-lbl" style="margin-top:14px;">Export combined report</div>
+      <div class="export-actions">
+        <button class="btn-secondary" id="exportPdfBtn" onclick="exportReport('pdf')" disabled>Export PDF Report</button>
+        <button class="btn-secondary" id="exportTxtBtn" onclick="exportReport('txt')" disabled>Export TXT Report</button>
+        <span class="export-status" id="exportStatus"></span>
+      </div>
+      <div id="pagesContainer" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">IARA — International Admissions Rating Algorithm </footer>
+<script>
+  const latestResultsByFilename={},reviewerNotesByFilename={},metaByFilename={};
+
+  let progressTimer = null;
+
+  function showProgress(){
+    const el = document.getElementById('progressWrap');
+    if(el){
+      el.style.display = 'block';
+    }
+  }
+
+  function hideProgress(){
+    const el = document.getElementById('progressWrap');
+    if(el){
+      el.style.display = 'none';
+    }
+  }
+
+  function setProgress(percent, statusText, subText = ''){
+    const safe = Math.max(0, Math.min(100, Math.round(percent)));
+
+    document.getElementById('progressFill').style.width = safe + '%';
+    document.getElementById('progressPercent').textContent = safe + '%';
+    document.getElementById('progressStatus').textContent = statusText || '';
+    document.getElementById('progressSubtext').textContent = subText || '';
+  }
+
+  function stopProgressAnimation(){
+    if(progressTimer){
+      clearInterval(progressTimer);
+      progressTimer = null;
+    }
+  }
+
+  function animateProgressWithinRange(start, end, statusText, subText = ''){
+    stopProgressAnimation();
+
+    let current = start;
+    const target = start + ((end - start) * 0.7);
+
+    setProgress(current, statusText, subText);
+
+    progressTimer = setInterval(function(){
+
+      if(current < target){
+
+        current += Math.max(0.8, (end - start) / 25);
+
+        if(current > target){
+          current = target;
+        }
+
+        setProgress(current, statusText, subText);
+      }
+
+    }, 350);
+  }
+
+  // Show selected file names on the upload zone
+  function fileSelected(input) {
+    const zone = document.getElementById('uploadZone');
+    if (input.files && input.files.length) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      zone.querySelector('h3').textContent = `${input.files.length} file${input.files.length>1?'s':''} selected`;
+      zone.querySelector('p').textContent = names.length > 80 ? names.slice(0,80)+'…' : names;
+      zone.style.borderColor = 'var(--c)';
+    }
+  }
+
+  // Drag and drop
+  document.addEventListener('DOMContentLoaded', function() {
+    const _zone = document.getElementById('uploadZone');
+    if (!_zone) return;
+    _zone.addEventListener('dragover', e => { e.preventDefault(); _zone.classList.add('over'); });
+    _zone.addEventListener('dragleave', () => _zone.classList.remove('over'));
+    _zone.addEventListener('drop', e => {
+      e.preventDefault(); _zone.classList.remove('over');
+      const fi = document.getElementById('pdfFile');
+      try {
+        const dt = new DataTransfer();
+        Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.pdf')).forEach(f => dt.items.add(f));
+        fi.files = dt.files;
+        fileSelected(fi);
+      } catch(_) {
+        fi._dragFiles = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.pdf'));
+        fileSelected({files: fi._dragFiles});
+      }
+    });
+  });
+
+  function setSevPill(el,sev,prefix){el.className='sev-pill';const s=(sev||'LOW').toUpperCase();if(s==='HIGH')el.classList.add('sev-high');else if(s==='MEDIUM')el.classList.add('sev-medium');else el.classList.add('sev-low');el.textContent=(prefix||'DOC: ')+s;}
+  function polClass(p){if(!p)return'pol-inc';p=p.toLowerCase();if(p==='fraud_positive')return'pol-fraud';if(p==='benign')return'pol-benign';return'pol-inc';}
+  function polLabel(p){if(!p)return'Inconclusive';p=p.toLowerCase();if(p==='fraud_positive')return'Fraud-positive';if(p==='benign')return'Benign';return'Inconclusive';}
+
+  async function uploadAndAnalyze(){
+    const fi=document.getElementById('pdfFile');
+    const btn=document.getElementById('analyzeBtn');
+    const errBox=document.getElementById('errorBox');
+    const resCard=document.getElementById('resultsCard');
+    const container=document.getElementById('pagesContainer');
+    errBox.style.display='none';
+    const files=Array.from(fi._dragFiles||fi.files||[]);
+    if(!files.length){errBox.textContent='Please select at least one PDF.';errBox.style.display='block';return;}
+    container.innerHTML='';resCard.style.display='none';
+    Object.keys(latestResultsByFilename).forEach(k=>delete latestResultsByFilename[k]);
+    Object.keys(reviewerNotesByFilename).forEach(k=>delete reviewerNotesByFilename[k]);
+    Object.keys(metaByFilename).forEach(k=>delete metaByFilename[k]);
+    btn.disabled=true;
+    showProgress();
+    setProgress(0,'Preparing analysis...',`Starting ${files.length} document${files.length>1?'s':''}.`);
+    try{
+      for(let i=0;i<files.length;i++){
+        const file=files[i];
+        const startPct = (i / files.length) * 100;
+        const endPct = ((i + 1) / files.length) * 100;
+
+        animateProgressWithinRange(
+          startPct,
+          endPct,
+          "Analyzing document " + (i+1) + " of " + files.length,
+          file.name
+        );
+        btn.innerHTML=`<span class="spinner"></span>Analyzing document ${i+1} of ${files.length}…`;
+        const fd=new FormData();fd.append('file',file);
+        let data;
+        try{
+          const resp=await fetch('/api/fraud/financial',{method:'POST',body:fd,credentials:'include'});
+          if(!resp.ok){let m=`Failed: ${file.name}`;try{const d=await resp.json();if(d.error)m=d.error;}catch(_){}throw new Error(m);}
+          data=await resp.json();
+          latestResultsByFilename[file.name]=data;
+          stopProgressAnimation();
+          setProgress(
+            ((i + 1) / files.length) * 100,
+            "Finished document " + (i+1) + " of " + files.length,
+            file.name + " completed successfully"
+          );
+          document.getElementById('exportPdfBtn').disabled=false;
+          document.getElementById('exportTxtBtn').disabled=false;
+        }catch(err){
+          stopProgressAnimation();
+          setProgress(
+            ((i + 1) / files.length) * 100,
+            "Processed document " + (i+1) + " of " + files.length,
+            file.name + " finished with an error"
+          );
+          const eb=document.createElement('div');eb.className='doc-block';
+          eb.innerHTML=`<span class="sev-pill sev-err">ERROR</span><div class="doc-name">${file.name}</div><div class="doc-sub">${err.message}</div>`;
+          container.appendChild(eb);continue;
+        }
+        if(!metaByFilename[file.name])metaByFilename[file.name]={studentId:'',applicantName:'',program:''};
+        const docBlock=document.createElement('div');docBlock.className='doc-block';
+        docBlock.innerHTML=`
+          <span class="sev-pill"></span>
+          <div class="doc-name">${file.name}</div>
+          <div class="doc-sub">Server path: ${data.file_path||'n/a'}</div>
+          <div style="margin-top:12px;">
+            <div class="section-lbl">Applicant Metadata</div>
+            <div class="meta-grid">
+              <input data-meta="studentId" data-fn="${file.name}" placeholder="Student ID (optional)">
+              <input data-meta="applicantName" data-fn="${file.name}" placeholder="Applicant Name (optional)">
+              <input data-meta="program" data-fn="${file.name}" placeholder="Program / Term (optional)">
+            </div>
+            <div class="meta-notes">
+              <div class="section-lbl">Reviewer Notes</div>
+              <textarea data-fn="${file.name}" placeholder="Notes for this document (concerns, follow-ups, verification needed…)"></textarea>
+            </div>
+          </div>
+          <div class="doc-pages"></div>`;
+        setSevPill(docBlock.querySelector('.sev-pill'),data.doc_severity,'DOC: ');
+        const notesBox=docBlock.querySelector(`textarea[data-fn="${file.name}"]`);
+        notesBox.value=reviewerNotesByFilename[file.name]||'';
+        notesBox.addEventListener('input',()=>{reviewerNotesByFilename[file.name]=notesBox.value;});
+        docBlock.querySelectorAll(`input[data-fn="${file.name}"]`).forEach(inp=>{
+          const key=inp.getAttribute('data-meta');
+          inp.value=metaByFilename[file.name][key]||'';
+          inp.addEventListener('input',()=>{metaByFilename[file.name][key]=inp.value;});
+        });
+        const pagesDiv=docBlock.querySelector('.doc-pages');
+        (data.pages||[]).forEach(page=>{
+          const ex=page.extra||{};
+          const ela=ex.ela!==undefined?ex.ela.toFixed(3):'n/a';
+          const cm=ex.copy_move!==undefined?ex.copy_move.toFixed(3):'n/a';
+          const pd=document.createElement('div');pd.className='page-card';
+          pd.innerHTML=`
+            <div class="page-row">
+              <h4>Page ${page.page_number}</h4>
+              <div>
+                <span class="sev-pill ${page.severity==='HIGH'?'sev-high':page.severity==='MEDIUM'?'sev-medium':'sev-low'}">${page.severity||'LOW'}</span>
+                <span class="pill pill-conf">Conf: ${(page.confidence||0).toFixed(2)}</span>
+                <span class="pill pill-ela">ELA: ${ela}</span>
+                <span class="pill pill-cm">Copy-move: ${cm}</span>
+                ${ex.escalated?'<span class="pill pill-esc">Second opinion</span>':''}
+              </div>
+            </div>
+            <div class="summary-blk"><strong>Summary:</strong><br>${page.ai_summary||'<span style="color:var(--gm)">(No summary returned)</span>'}</div>
+            <div class="ocr-prev"><strong>OCR preview:</strong><br>${page.ocr_preview?page.ocr_preview.replace(/</g,'&lt;').replace(/>/g,'&gt;'):'<span style="color:var(--gm)">(No text extracted)</span>'}</div>
+            <div class="signals-head">Signals</div>
+            <div class="signals-container"></div>`;
+          const sc=pd.querySelector('.signals-container');
+          const sigs=page.fraud_signals||[];
+          if(!sigs.length){sc.innerHTML='<div class="signal-item" style="color:var(--gm)">No explicit signals returned.</div>';}
+          else{sigs.forEach(sig=>{const sd=document.createElement('div');sd.className='signal-item';sd.innerHTML=`<div>${sig.signal||'(no description)'}</div><div class="signal-meta"><span class="${polClass(sig.polarity)}">${polLabel(sig.polarity)}</span> · Category: ${sig.category||'n/a'} · Conf: ${(sig.confidence||0).toFixed(2)}${sig.source?` · Source: ${sig.source}`:''}</div>`;sc.appendChild(sd);});}
+          pagesDiv.appendChild(pd);
+        });
+        container.appendChild(docBlock);
+      }
+      if(container.children.length)resCard.style.display='block';
+    }catch(err){errBox.textContent=err.message||'Unexpected error.';errBox.style.display='block';}
+    finally{
+      stopProgressAnimation();
+
+      setProgress(
+        100,
+        "Analysis complete",
+        "Finished processing " + files.length + " document(s)"
+      );
+
+      setTimeout(function(){
+        hideProgress();
+      },1200);
+
+      btn.disabled=false;
+      btn.innerHTML='Analyze Document(s)';
+    }
+  }
+
+  async function exportReport(format){
+    const pdfBtn=document.getElementById('exportPdfBtn'),txtBtn=document.getElementById('exportTxtBtn'),statusEl=document.getElementById('exportStatus');
+    statusEl.textContent='';
+    const filenames=Object.keys(latestResultsByFilename);
+    if(!filenames.length){statusEl.textContent='No results to export.';return;}
+    const docs=filenames.map(fn=>({originalFilename:fn,result:latestResultsByFilename[fn],comments:(reviewerNotesByFilename[fn]||'').trim(),meta:{studentId:(metaByFilename[fn]?.studentId||'').trim(),applicantName:(metaByFilename[fn]?.applicantName||'').trim(),program:(metaByFilename[fn]?.program||'').trim()}}));
+    pdfBtn.disabled=txtBtn.disabled=true;statusEl.textContent=`Generating ${format.toUpperCase()} report…`;
+    try{
+      const resp=await fetch('/api/fraud/financial/report/all',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({documents:docs,format})});
+      if(!resp.ok){let m='Export failed.';try{const d=await resp.json();if(d.error)m=d.error;}catch(_){}throw new Error(m);}
+      const blob=await resp.blob();
+      let fname=format==='txt'?'financial_fraud_combined.txt':'financial_fraud_combined.pdf';
+      const cd=resp.headers.get('content-disposition')||'';const match=cd.match(/filename="?([^"]+)"?/i);if(match)fname=match[1];
+      const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:fname});document.body.appendChild(a);a.click();a.remove();
+      statusEl.textContent=`Downloaded: ${fname}`;
+    }catch(err){statusEl.textContent=err.message||'Export error.';}
+    finally{pdfBtn.disabled=txtBtn.disabled=false;}
+  }
+</script>
+</body>
+</html>
