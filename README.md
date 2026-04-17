@@ -10,30 +10,11 @@
 ## Project Overview
 
 The International Student Scoring System (IARA) supports WSU's admissions office by scoring international applicants accurately and efficiently.
-
-**Sprint 5** focuses on backend stabilization, a full WSU-branded UI redesign, admin user management, and fraud detection improvements. The system now generates reports end-to-end, displays live analytics, and is being prepared for deployment on Render.
-
 ---
 
 ## Demo Video
 
 **Sprint 5 Demo** – Direct link: *[Youtube.com](https://youtu.be/Ap_DkOtFV-E)*
-
----
-
-## Sprint 5 Features
-
-- **Report Generation Fixed** – PDF and plain text reports now generate end-to-end with scores, essay analysis, staff comments, and recommendation.
-- **WSU Brand Redesign** – All 11 templates rebuilt using the official WSU design system (Crimson #a60f2d, Montserrat font, WSU CDN bundle).
-- **Live Analytics** – Dashboard now updates after every single student analysis, not just batch.
-- **Admin User Management** – Working Deactivate and Delete buttons, protected admin account, all actions logged to activity log.
-- **File Upload Fix** – Financial and transcript upload zones now work correctly across all browsers.
-- **Checkbox Fix** – Risk factor checkboxes now support multiple independent selections.
-- **Fraud Detection Loading Bar** – Progress indicator added to both financial and transcript screening pages.
-- **Fraud Detection Test Suite** – Automated tests written for both fraud detection systems.
-- **Fraud Detection PDF Fix** – Text overflow in exported fraud detection reports resolved.
-- **Database Auto-Migration** – Schema migrates automatically on startup, zero manual intervention required.
-- **New Admin Routes** – `POST /api/admin/toggle-user` and `POST /api/admin/delete-user` added with role-based access control.
 
 ---
 
